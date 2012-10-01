@@ -212,12 +212,26 @@ void generate_data(int *values) {
 }
 
 int main() {
+  int i;
   int values[SIZE];
 
   struct timeval tim;
   gettimeofday(&tim, NULL);
   srand(tim.tv_usec / 1.0);
 
+  void (*functionPtr[])(int*) = {
+    &quick_sort,
+    &heap_sort,
+    &bubble_sort,
+  };
+
+  for(i = 0 ;  ; i = (i+1) % 3 ) {
+    generate_data(values);
+    (*functionPtr[i])(values);
+    sleep(5);
+  }
+
+  /*
   generate_data(values);
   heap_sort(values);
   sleep(10);
@@ -228,6 +242,7 @@ int main() {
 
   generate_data(values);
   bubble_sort(values);
+  */
 
 }
 
