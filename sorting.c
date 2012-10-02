@@ -3,8 +3,13 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#define SIZE 45
+#define ARRAY_SIZE 45
 #define LOOP_INTERVAL 50000
+
+#define COLOR_GREEN 32
+#define COLOR_YELLOW 33
+#define COLOR_RED 31
+#define COLOR_MAGENTA 35
 
 int n_compares = 0;
 int n_swaps = 0;
@@ -28,7 +33,7 @@ void print_data(int *values, int first, int second, int pivot, int color) {
   printf("Algorithm: \"%s\"  Compares: %d  Swaps: %d  Time: %3.2fs\n\n", 
          algorithm, n_compares, n_swaps, cur_time);
 
-  for(i=0; i<SIZE; i++) {
+  for(i=0; i<ARRAY_SIZE; i++) {
     if(i == first || i == second) {
       printf("\033[%dm%3d: \033[0m", color, i+1);
     } else {
@@ -36,7 +41,7 @@ void print_data(int *values, int first, int second, int pivot, int color) {
     }
 
     if(i == pivot) {
-      printf("\033[35m");
+      printf("\033[%dm", COLOR_MAGENTA);
     }
 
     for(j=0; j<values[i]; j++) {
@@ -60,19 +65,19 @@ void color_swap(int *values, int first, int second, int pivot) {
   values[first] = values[second];
   values[second] = tmp;
 
-  print_data(values, first, second, pivot, 32);
+  print_data(values, first, second, pivot, COLOR_GREEN);
   usleep(LOOP_INTERVAL);
 }
 
 void color_noswap(int *values, int first, int second, int pivot) {
-  print_data(values, first, second, pivot, 31);
+  print_data(values, first, second, pivot, COLOR_RED);
   usleep(LOOP_INTERVAL);
 }
 
 int color_compare(int *values, int first, int second, int pivot) {
   n_compares++;
 
-  print_data(values, first, second, pivot, 33);
+  print_data(values, first, second, pivot, COLOR_YELLOW);
   usleep(LOOP_INTERVAL);
 }
 
@@ -82,7 +87,7 @@ void bubble_sort(int *values) {
 
   algorithm = "Bubblesort";
 
-  for(i=SIZE-1; i>0; i--) {
+  for(i=ARRAY_SIZE-1; i>0; i--) {
     for(j=0; j<i; j++) {
       color_compare(values, j, j+1, i+1);
       if( values[j+1] < values[j] ) {
@@ -136,7 +141,7 @@ void quick_sort_r(int *values, int left, int right) {
 void quick_sort(int *values) {
   algorithm = "Quicksort";
 
-  quick_sort_r(values, 0, SIZE - 1);
+  quick_sort_r(values, 0, ARRAY_SIZE - 1);
 }
 
 void heap_sort_siftDown(int *values, int start, int end) {
@@ -171,8 +176,8 @@ void heap_sort_siftDown(int *values, int start, int end) {
 }
 
 void heap_sort_heapify(int *values) {
-  int count = SIZE;
-  int start = (SIZE - 2) / 2;
+  int count = ARRAY_SIZE;
+  int start = (ARRAY_SIZE - 2) / 2;
 
   while( start >= 0 ) {
     heap_sort_siftDown(values, start, count-1);
@@ -181,7 +186,7 @@ void heap_sort_heapify(int *values) {
 }
 
 void heap_sort(int *values) {
-  int end = SIZE - 1;
+  int end = ARRAY_SIZE - 1;
 
   algorithm = "Heapsort";
 
@@ -199,7 +204,7 @@ void insertion_sort(int *values) {
 
   algorithm = "Insertion";
 
-  for(i = 1; i < SIZE; i++) {
+  for(i = 1; i < ARRAY_SIZE; i++) {
     for(j = i; j > 0; j--) {
       color_compare(values, j, j-1, i);
       if(values[j] <= values[j-1]) {
@@ -218,18 +223,18 @@ void selection_sort(int *values) {
 
   algorithm = "Selection";
 
-  for(j = 0; j < SIZE-1; j++) {
+  for(j = 0; j < ARRAY_SIZE-1; j++) {
     iMin = j;
-    for(i = j+1; i < SIZE; i++) {
-      color_compare(values, i, iMin, j);
+    for(i = j+1; i < ARRAY_SIZE; i++) {
+      color_compare(values, i, iMin, j-1);
       if(values[i] < values[iMin]) {
         iMin = i;
       }
     }
     if(iMin != j) {
-      color_swap(values, j, iMin, j);
+      color_swap(values, j, iMin, j-1);
     } else {
-      color_noswap(values, j, iMin, j);
+      color_noswap(values, j, iMin, j-1);
     }
   }
 
@@ -239,11 +244,11 @@ void generate_data(int *values) {
   int i;
   int swap_from, swap_to, tmp;
 
-  for(i=0; i<SIZE; i++) values[i] = i;
+  for(i=0; i<ARRAY_SIZE; i++) values[i] = i;
 
-  for(i=0; i<SIZE; i++) {
-    swap_from = rand() % SIZE;
-    swap_to = rand() % SIZE;
+  for(i=0; i<ARRAY_SIZE; i++) {
+    swap_from = rand() % ARRAY_SIZE;
+    swap_to = rand() % ARRAY_SIZE;
 
     tmp = values[swap_to];
     values[swap_to] = values[swap_from];
@@ -255,7 +260,7 @@ void generate_data(int *values) {
 
 int main() {
   int i, j;
-  int values[SIZE];
+  int values[ARRAY_SIZE];
 
   struct timeval tim;
   gettimeofday(&tim, NULL);
