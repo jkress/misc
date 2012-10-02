@@ -39,9 +39,11 @@ void print_data(int *values, int first, int second, int pivot, int color) {
       printf("\033[0m");
     }
 
+    /*
     for( ; j<SIZE; j++) {
       printf(" ");
     }
+    */
 
     printf("\n");
   }
@@ -193,6 +195,25 @@ void heap_sort(int *values) {
   }
 }
 
+void insertion_sort(int *values) {
+  int i, j;
+
+  reset_stats();
+  algorithm = "Insertion Sort";
+
+  for(i = 2; i < SIZE; i++) {
+    for(j = i; j > 0; j--) {
+      color_compare(values, j, j-1, -1);
+      if(values[j] <= values[j-1]) {
+        color_swap(values, j, j-1, -1);
+      } else {
+        color_noswap(values, j, j-1, -1);
+        break;
+      }
+    }
+  }
+}
+
 void generate_data(int *values) {
   int i;
   int swap_from, swap_to, tmp;
@@ -212,37 +233,71 @@ void generate_data(int *values) {
 }
 
 int main() {
-  int i;
+  int i, j;
   int values[SIZE];
 
   struct timeval tim;
   gettimeofday(&tim, NULL);
   srand(tim.tv_usec / 1.0);
 
-  void (*functionPtr[])(int*) = {
+  typedef void (*fn_ptr)( int* );
+  fn_ptr fn_ptr_array[] = {
     &quick_sort,
     &heap_sort,
+    &insertion_sort,
     &bubble_sort,
   };
 
-  for(i = 0 ;  ; i = (i+1) % 3 ) {
+  int array_size = sizeof(fn_ptr_array) / sizeof(fn_ptr);
+  
+  struct result {
+    char *algorithm;
+    int n_compares;
+    int n_swaps;
+    double n_seconds;
+  };
+
+  struct result results_list[array_size];
+  double start_time, end_time;
+
+  for(i = 0 ;  ; i = (i % array_size) ) {
     generate_data(values);
-    (*functionPtr[i])(values);
+
+    gettimeofday(&tim, NULL);
+    start_time = tim.tv_sec+(tim.tv_usec/1000000.0);
+
+    (*fn_ptr_array[i])(values);
+
+    gettimeofday(&tim, NULL);
+    end_time = tim.tv_sec+(tim.tv_usec/1000000.0);
+    
+    struct result current_result;
+
+    current_result.algorithm = algorithm;
+    current_result.n_compares = n_compares;
+    current_result.n_swaps = n_swaps;
+    current_result.n_seconds = end_time - start_time;
+
+    results_list[i] = current_result;
+
     sleep(5);
+
+    i++;
+
+    if(i == array_size) {
+      system("clear");
+      printf("Results:\n\n");
+
+      for(j = 0; j < array_size; j++) {
+        printf("Algorithm: \"%s\"\tCompares: %3d  Swaps: %3d  Seconds: %3.2f\n",
+               results_list[j].algorithm,
+               results_list[j].n_compares,
+               results_list[j].n_swaps,
+               results_list[j].n_seconds
+              );
+      }
+      sleep(10);
+    }
   }
-
-  /*
-  generate_data(values);
-  heap_sort(values);
-  sleep(10);
-
-  generate_data(values);
-  quick_sort(values);
-  sleep(10);
-
-  generate_data(values);
-  bubble_sort(values);
-  */
-
 }
 
