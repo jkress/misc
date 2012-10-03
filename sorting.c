@@ -5,7 +5,7 @@
 #include <sys/time.h>
 
 #define ARRAY_SIZE 45
-#define LOOP_INTERVAL 1000
+#define LOOP_INTERVAL 100000
 
 #define COLOR_CLEAR 0
 #define COLOR_RED 31
