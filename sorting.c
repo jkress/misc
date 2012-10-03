@@ -8,9 +8,9 @@
 #define LOOP_INTERVAL 100000
 
 #define COLOR_CLEAR 0
+#define COLOR_RED 31
 #define COLOR_GREEN 32
 #define COLOR_YELLOW 33
-#define COLOR_RED 31
 #define COLOR_MAGENTA 35
 
 int n_compares = 0;
