@@ -261,7 +261,7 @@ void shell_sort(int *values) {
   int n = ARRAY_SIZE;
   int gaps[] = {48, 21, 7, 5, 1};
 
-  algorithm = "Shell Sort";
+  algorithm = "Shell Sort (Insertion)";
 
   for( k = 0; k < sizeof(gaps) / sizeof(int); k++ ) {
     gap = gaps[k];
@@ -282,6 +282,8 @@ void shell_sort(int *values) {
 void generate_data(int *values) {
   int i;
   int swap_from, swap_to, tmp;
+
+  algorithm = "---";
 
   for(i=0; i<ARRAY_SIZE; i++) values[i] = i;
 
@@ -383,7 +385,9 @@ int main() {
       system("clear");
       printf("Results:\n\n");
 
-      sprintf(ctrl_str, "\033[%%dmAlgorithm: %%%ds  Compares: %%4d  Swaps: %%3d  Time: %%3.2fs\033[0m\n", -max_l);
+      sprintf(ctrl_str, "Run  %%%ds    Compares  Swaps  Time\n", -max_l);
+      printf(ctrl_str, "Algorithm");
+      sprintf(ctrl_str, "\033[%%dm%%d    %%%ds    %%-4d      %%-3d    %%-3.2fs\033[0m\n", -max_l);
 
       for(j = 0; j < array_size; j++) {
         int color = COLOR_CLEAR;
@@ -399,6 +403,7 @@ int main() {
 
         printf(ctrl_str,
                color,
+               j+1,
                results_list[j].algorithm,
                results_list[j].n_compares,
                results_list[j].n_swaps,
