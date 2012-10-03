@@ -44,17 +44,24 @@ void print_data(int *values, int first, int second, int pivot, int color) {
   cur_time = (tim.tv_sec+(tim.tv_usec/1000000.0)) - start_time;
 
   system("clear");
-  printf("Algorithm: \"%s\"  Compares: %d  Swaps: %d  Time: %3.2fs\n\n", 
+  printf("Algorithm: \"%s\"  Compares: %d  Swaps: %d  Time: %3.2fs\n", 
          algorithm, n_compares, n_swaps, cur_time);
+  printf("Key:  \033[%dm->\033[0m Compare  ", COLOR_YELLOW);
+  printf("\033[%dm->\033[0m Swap  ", COLOR_GREEN);
+  printf("\033[%dm->\033[0m No Swap  ", COLOR_RED);
+  printf("\033[%dm|--|\033[0m Pivot/Iteration", COLOR_MAGENTA);
+  printf("\n\n");
 
   for(i=0; i<ARRAY_SIZE; i++) {
     if(i == first || i == second) {
-      printf("\033[%dm%3d -> \033[0m|", color, i+1);
+      printf("\033[%dm%3d -> \033[0m", color, i+1);
     } else {
-      printf("%3d    |", i+1);
+      printf("%3d    ", i+1);
     }
 
     if(i == pivot) printf("\033[%dm", COLOR_MAGENTA);
+
+    printf("|");
 
     for(j=0; j<=values[i]; j++) printf("-");
 
