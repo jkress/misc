@@ -5,7 +5,7 @@
 #include <sys/time.h>
 
 #define ARRAY_SIZE 45
-#define LOOP_INTERVAL 100000
+#define LOOP_INTERVAL 1000
 
 #define COLOR_CLEAR 0
 #define COLOR_RED 31
@@ -261,7 +261,7 @@ void shell_sort(int *values) {
   int n = ARRAY_SIZE;
   int gaps[] = {48, 21, 7, 5, 1};
 
-  algorithm = "Shell Sort (Insertion)";
+  algorithm = "Shell Sort";
 
   for( k = 0; k < sizeof(gaps) / sizeof(int); k++ ) {
     gap = gaps[k];
