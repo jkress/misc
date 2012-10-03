@@ -5,8 +5,9 @@
 #include <sys/time.h>
 
 #define ARRAY_SIZE 45
-#define LOOP_INTERVAL 50000
+#define LOOP_INTERVAL 100000
 
+#define COLOR_CLEAR 0
 #define COLOR_GREEN 32
 #define COLOR_YELLOW 33
 #define COLOR_RED 31
@@ -291,7 +292,8 @@ void generate_data(int *values) {
 
 int main() {
   int i, j;
-  int max_l;
+  int max_l, min_i, max_i;
+  double min_t, max_t;
   int values[ARRAY_SIZE];
   char ctrl_str[80];
 
@@ -350,6 +352,21 @@ int main() {
     i++;
 
     if(i == array_size) {
+      min_t = 9999;
+      max_t = 0;
+      min_i = -1;
+      max_i = -1;
+      for(j = 0; j < array_size; j++) {
+        if( results_list[j].n_seconds < min_t ) {
+          min_t = results_list[j].n_seconds;
+          min_i = j;
+        }
+        if( results_list[j].n_seconds > max_t ) {
+          max_t = results_list[j].n_seconds;
+          max_i = j;
+        }
+      }
+
       max_l = 0;
       for(j=0; j < array_size; j++) {
         if( strlen(results_list[j].algorithm) > max_l) {
@@ -359,17 +376,29 @@ int main() {
       system("clear");
       printf("Results:\n\n");
 
-      sprintf(ctrl_str, "Algorithm: %%%ds  Compares: %%4d  Swaps: %%3d  Time: %%3.2fs\n", -max_l);
+      sprintf(ctrl_str, "\033[%%dmAlgorithm: %%%ds  Compares: %%4d  Swaps: %%3d  Time: %%3.2fs\033[0m\n", -max_l);
 
       for(j = 0; j < array_size; j++) {
+        int color = COLOR_CLEAR;
+
+        if( array_size > 1) {
+          if( j == max_i ) {
+            color = COLOR_RED;
+          } 
+          if( j == min_i ) {
+            color = COLOR_GREEN;
+          }
+        }
+
         printf(ctrl_str,
+               color,
                results_list[j].algorithm,
                results_list[j].n_compares,
                results_list[j].n_swaps,
                results_list[j].n_seconds
               );
       }
-      sleep(10);
+      sleep(30);
     }
   }
 }
