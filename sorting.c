@@ -7,11 +7,11 @@
 #define ARRAY_SIZE 45
 #define LOOP_INTERVAL 100000
 
-#define COLOR_CLEAR 0
-#define COLOR_RED 31
-#define COLOR_GREEN 32
-#define COLOR_YELLOW 33
-#define COLOR_MAGENTA 35
+#define COLOR_CLEAR "\033[0m"
+#define COLOR_RED "\033[31m"
+#define COLOR_GREEN "\033[32m"
+#define COLOR_YELLOW "\033[33m"
+#define COLOR_MAGENTA "\033[35m"
 
 int n_compares = 0;
 int n_swaps = 0;
@@ -28,38 +28,38 @@ void do_sleep() {
   double elapsed;
 
   gettimeofday(&tim, NULL);
-  elapsed = (tim.tv_sec+(tim.tv_usec/1000000.0)) - tick_time;
+  elapsed = (tim.tv_sec + (tim.tv_usec/1000000.0)) - tick_time;
 
   usleep(LOOP_INTERVAL - elapsed);
   gettimeofday(&tim, NULL);
-  tick_time = tim.tv_sec+(tim.tv_usec/1000000.0);
+  tick_time = tim.tv_sec + (tim.tv_usec/1000000.0);
 }
 
-void print_data(int *values, int first, int second, int pivot, int color) {
+void print_data(int *values, int first, int second, int pivot, char *color) {
   int i, j; 
 
   double cur_time; 
 
   gettimeofday(&tim, NULL);
-  cur_time = (tim.tv_sec+(tim.tv_usec/1000000.0)) - start_time;
+  cur_time = (tim.tv_sec + (tim.tv_usec/1000000.0)) - start_time;
 
   system("clear");
   printf("Algorithm: \"%s\"  Compares: %d  Swaps: %d  Time: %3.2fs\n", 
          algorithm, n_compares, n_swaps, cur_time);
-  printf("Key:  \033[%dm->\033[0m Compare  ", COLOR_YELLOW);
-  printf("\033[%dm->\033[0m Swap  ", COLOR_GREEN);
-  printf("\033[%dm->\033[0m No Swap  ", COLOR_RED);
-  printf("\033[%dm|--|\033[0m Pivot/Iteration", COLOR_MAGENTA);
+  printf("Key:  %s->%s Compare  ", COLOR_YELLOW, COLOR_CLEAR);
+  printf("%s->%s Swap  ", COLOR_GREEN, COLOR_CLEAR);
+  printf("%s->%s No Swap  ", COLOR_RED, COLOR_CLEAR);
+  printf("%s|--|%s Pivot/Iteration", COLOR_MAGENTA, COLOR_CLEAR);
   printf("\n\n");
 
   for(i=0; i<ARRAY_SIZE; i++) {
     if(i == first || i == second) {
-      printf("\033[%dm%3d -> \033[0m", color, i+1);
+      printf("%s%3d -> %s", color, i+1, COLOR_CLEAR);
     } else {
       printf("%3d    ", i+1);
     }
 
-    if(i == pivot) printf("\033[%dm", COLOR_MAGENTA);
+    if(i == pivot) printf("%s", COLOR_MAGENTA);
 
     printf("|");
 
@@ -67,7 +67,7 @@ void print_data(int *values, int first, int second, int pivot, int color) {
 
     printf("|");
 
-    if(i == pivot) printf("\033[0m"); 
+    if(i == pivot) printf("%s", COLOR_CLEAR); 
 
     printf("\n");
   }
@@ -296,7 +296,7 @@ void generate_data(int *values) {
     values[swap_from] = tmp;
   }
 
-  print_data(values, -1, -1, -1, -1);
+  print_data(values, -1, -1, -1, COLOR_CLEAR);
 }
 
 int main() {
@@ -319,7 +319,7 @@ int main() {
   gettimeofday(&tim, NULL);
   srand(tim.tv_usec / 1.0);
 
-  start_time = tick_time = tim.tv_sec+(tim.tv_usec/1000000.0);
+  start_time = tick_time = tim.tv_sec + (tim.tv_usec/1000000.0);
 
   int array_size = sizeof(fn_ptr_array) / sizeof(fn_ptr);
   
@@ -338,14 +338,14 @@ int main() {
     generate_data(values);
 
     gettimeofday(&tim, NULL);
-    start_time = tim.tv_sec+(tim.tv_usec/1000000.0);
+    start_time = tim.tv_sec + (tim.tv_usec/1000000.0);
 
     (*fn_ptr_array[i])(values);
 
     gettimeofday(&tim, NULL);
-    end_time = tim.tv_sec+(tim.tv_usec/1000000.0);
+    end_time = tim.tv_sec + (tim.tv_usec/1000000.0);
     
-    print_data(values, -1, -1, -1, -1);
+    print_data(values, -1, -1, -1, COLOR_CLEAR);
 
     struct result current_result;
 
@@ -387,10 +387,10 @@ int main() {
 
       sprintf(ctrl_str, "Run  %%%ds    Compares  Swaps  Time\n", -max_l);
       printf(ctrl_str, "Algorithm");
-      sprintf(ctrl_str, "\033[%%dm%%d    %%%ds    %%-4d      %%-3d    %%-3.2fs\033[0m\n", -max_l);
+      sprintf(ctrl_str, "%%s%%d    %%%ds    %%-4d      %%-3d    %%-3.2fs%s\n", -max_l, COLOR_CLEAR);
 
       for(j = 0; j < array_size; j++) {
-        int color = COLOR_CLEAR;
+        char *color = COLOR_CLEAR;
 
         if( array_size > 1) {
           if( j == max_i ) {
