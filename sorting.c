@@ -98,7 +98,6 @@ void color_compare(int *values, int first, int second, int pivot) {
 
 void bubble_sort(int *values) {
   int i, j;
-  int newn = -1;
 
   algorithm = "Bubble Sort";
 
@@ -117,7 +116,6 @@ void bubble_sort(int *values) {
 void quick_sort_r(int *values, int left, int right) {
   int i = left;
   int j = right;
-  int tmp;
   int pivot = (left + right) / 2;
   int pivot_value = values[pivot];
 
