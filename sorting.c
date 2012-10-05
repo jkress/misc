@@ -4,9 +4,13 @@
 #include <unistd.h>
 #include <sys/time.h>
 
+/* Number of elements */
 #define ARRAY_SIZE 45
+
+/* Length of time for each iteration, in milliseconds */
 #define LOOP_INTERVAL 100000
 
+/* Terminal Colors */
 #define COLOR_CLEAR "\033[0m"
 #define COLOR_RED "\033[31m"
 #define COLOR_GREEN "\033[32m"
@@ -15,8 +19,10 @@
 
 int n_compares = 0;
 int n_swaps = 0;
+
 double start_time;
 double tick_time;
+
 char *algorithm = "---";
 struct timeval tim;
 
@@ -24,6 +30,10 @@ void reset_stats() {
   n_compares = n_swaps = 0;
 }
 
+/* do_sleep()
+ * Uses the tick_time variable to determine the amount of time elapsed
+ * since the last sleep. Sleeps for LOOP_INTERVAL - elapsed ms.
+ */
 void do_sleep() {
   double elapsed;
 
@@ -35,6 +45,18 @@ void do_sleep() {
   tick_time = tim.tv_sec + (tim.tv_usec/1000000.0);
 }
 
+/* print_data()
+ * Takes an array of integers, three indexes into the array, and a 
+ * color control string. Prints a header with stats, a color key,
+ * and then the values contained in the array. Highlights the indexes
+ * that were given in first, second, and pivot.
+ * 
+ * values: An array of integers to display
+ * first: The first index into the array to highlight (compare or swap)
+ * second: The second index into the array to highlight
+ * pivot: Index into the array to be highlighted purple
+ * color: A string containing a pre-defined color code
+ */
 void print_data(int *values, int first, int second, int pivot, char *color) {
   int i, j; 
 
@@ -74,6 +96,17 @@ void print_data(int *values, int first, int second, int pivot, char *color) {
   do_sleep();
 }
 
+/* color_swap()
+ * Given an array of integers, two indexes and a pivot, this function
+ * will swap the values in valuaes[first] and values[second], then 
+ * print the current state of the array with first and second
+ * highlighted with COLOR_GREEN.
+ * 
+ * values: Array of integers to be displayed
+ * first: Index into the array, first value to swap
+ * second: Index into the array, other value to swap
+ * pivot: Index into the array, the current pivot point (-1 to ignore)
+ */
 void color_swap(int *values, int first, int second, int pivot) {
   int tmp;
 
@@ -86,16 +119,43 @@ void color_swap(int *values, int first, int second, int pivot) {
   print_data(values, first, second, pivot, COLOR_GREEN);
 }
 
+/* color_noswap()
+ * Given an array of integers, two indexes and a pivot index, this 
+ * function will not swap any values, and display the state of the 
+ * array with first and second highlighted with COLOR_RED.
+ * 
+ * values: Array of integers to display
+ * first: Index into the array, to be highlighted red
+ * second: Index into the array, to be highlighted red
+ * pivot: Index into the array, to be highlighted purple (-1 to ignore)
+ */
 void color_noswap(int *values, int first, int second, int pivot) {
   print_data(values, first, second, pivot, COLOR_RED);
 }
 
+/* color_compare()
+ * Given an array of integers, two indexes and a pivot index, this
+ * function will display the state of the array with the first
+ * and second values highlighted with COLOR_YELLOW.
+ * 
+ * values: Array of integers to display
+ * first: Index into the array, to be highlighted yellow
+ * second: Index into the array, to be highlighted yellow
+ * pivot: Index into the array, to be highlighted purple (-1 to ignore)
+ */
 void color_compare(int *values, int first, int second, int pivot) {
   n_compares++;
 
   print_data(values, first, second, pivot, COLOR_YELLOW);
 }
 
+/* bubble_sort()
+ * Implementation of Bubble Sort. Takes an array of integers, calls 
+ * color_compare(), color_swap() and color_noswap() to display the
+ * progress of the sort.
+ * 
+ * values: Array of integers to be sorted
+ */
 void bubble_sort(int *values) {
   int i, j;
 
@@ -113,6 +173,17 @@ void bubble_sort(int *values) {
   }
 }
 
+/* quick_sort_r()
+ * Implementation of Quick Sort. Takes an array of integers and two 
+ * indexes into that array. Left and right define the area that
+ * quicksort will operate on. This function calls itself recursively.
+ * Calls color_compare(), color_swap() and color_noswap() to display
+ * the progress.
+ * 
+ * values: Array of integers to be sorted
+ * left: Index to the array to indicate the left boundary to be sorted
+ * right: Index to the array to indicate the right boundary to be sorted
+ */
 void quick_sort_r(int *values, int left, int right) {
   int i = left;
   int j = right;
@@ -151,12 +222,27 @@ void quick_sort_r(int *values, int left, int right) {
   }
 }
 
+/* quick_sort()
+ * Wrapper around quick_sort_r() which implements Quick Sort
+ * 
+ * values: Array of integers to be sorted
+ */
 void quick_sort(int *values) {
   algorithm = "Quick Sort";
 
   quick_sort_r(values, 0, ARRAY_SIZE - 1);
 }
 
+/* heap_sort_siftDown()
+ * Implementation of SiftDown for Heap Sort. Sifts smaller values down
+ * through the heap structure to ensure that the array is a valid 
+ * heap when finished. Calls color_compare(), color_swap() and 
+ * color_noswap() to display its progress.
+ * 
+ * values: Array of integers to be sorted (assumed to be a heap)
+ * start: Index into the array, heap node to start sifting down from
+ * end: Index into the array, end
+ */ 
 void heap_sort_siftDown(int *values, int start, int end) {
   int root = start;
   int child = (root * 2) + 1;
@@ -188,6 +274,13 @@ void heap_sort_siftDown(int *values, int start, int end) {
   }
 }
 
+/* heap_sort_heapify()
+ * The first step in Heap Sort, we take a list of integers and call
+ * heap_sort_siftDown() until the array is a valid representation of 
+ * a heap.
+ * 
+ * values: Array of integers to be sorted
+ */ 
 void heap_sort_heapify(int *values) {
   int count = ARRAY_SIZE;
   int start = (ARRAY_SIZE - 2) / 2;
@@ -198,6 +291,15 @@ void heap_sort_heapify(int *values) {
   }
 }
 
+/* heap_sort()
+ * Implementation of Heap Sort. First calls heap_sort_heapify() to
+ * create a heap structure from the array, then repeatedly calls
+ * heap_sort_siftDown() after swapping the max value to the end of the
+ * array. When there are no more elements in the heap, the array is
+ * sorted.
+ * 
+ * values: Array of integers to be sorted
+ */ 
 void heap_sort(int *values) {
   int end = ARRAY_SIZE - 1;
 
@@ -212,6 +314,12 @@ void heap_sort(int *values) {
   }
 }
 
+/* insertion_sort()
+ * Implementation of Insertion Sort. Calls color_compare(), color_swap()
+ * and color_noswap() to display the progress.
+ * 
+ * values: Array of integers to be sorted
+ */ 
 void insertion_sort(int *values) {
   int i, j;
 
@@ -230,6 +338,12 @@ void insertion_sort(int *values) {
   }
 }
 
+/* selection_sort()
+ * Implementation of Selection Sort. Calls color_compare(), color_swap()
+ * and color_noswap() to display the progress.
+ * 
+ * values: Array of integers to be sorted
+ */ 
 void selection_sort(int *values) {
   int i, j;
   int iMin;
@@ -253,7 +367,13 @@ void selection_sort(int *values) {
 
 }
 
-
+/* shell_sort()
+ * Implementation of Shell Sort. Between the gaps, this function 
+ * implements Insertion Sort. Calls color_compare(), color_swap()
+ * and color_noswap() to display the progress.
+ * 
+ * values: Array of integers to be sorted
+ */ 
 void shell_sort(int *values) {
   int gap, i, j, k;
   int n = ARRAY_SIZE;
@@ -277,6 +397,12 @@ void shell_sort(int *values) {
   }
 }
 
+/* generate_data
+ * Takes an array of integers and uses rand() to randomly swap elements
+ * of the array to randomize it. Prints the randomized array.
+ * 
+ * values: Array of integers to be randomized
+ */ 
 void generate_data(int *values) {
   int i;
   int swap_from, swap_to, tmp;
@@ -297,6 +423,12 @@ void generate_data(int *values) {
   print_data(values, -1, -1, -1, COLOR_CLEAR);
 }
 
+/* main()
+ * Loops forever calling each sorting algorithm with a randomized
+ * list of integers each time. Records the number of compares, the
+ * number of swaps, and the time for each run of each algorithm.
+ * After all sorts have run, it displays the results, then loops again.
+ */ 
 int main() {
   int i, j;
   int max_l, min_i, max_i;
