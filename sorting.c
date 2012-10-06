@@ -397,7 +397,7 @@ void shell_sort(int *values) {
   }
 }
 
-/* generate_data
+/* generate_data()
  * Takes an array of integers and uses rand() to randomly swap elements
  * of the array to randomize it. Prints the randomized array.
  * 
