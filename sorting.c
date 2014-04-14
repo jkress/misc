@@ -8,7 +8,7 @@
 #define ARRAY_SIZE 45
 
 /* Length of time for each iteration, in milliseconds */
-#define LOOP_INTERVAL 100000
+#define LOOP_INTERVAL 80000
 
 /* Terminal Colors */
 #define COLOR_CLEAR "\033[0m"
@@ -24,6 +24,7 @@ double start_time;
 double tick_time;
 
 char *algorithm = "---";
+int run_number = 0;
 struct timeval tim;
 
 void reset_stats() {
@@ -62,15 +63,21 @@ void print_data(int *values, int first, int second, int pivot, char *color) {
 
   double cur_time; 
 
+  system("clear");
+
   gettimeofday(&tim, NULL);
   cur_time = (tim.tv_sec + (tim.tv_usec/1000000.0)) - start_time;
 
-  system("clear");
-  printf("Algorithm: \"%s\"  Compares: %d  Swaps: %d  Time: %3.2fs\n", 
-         algorithm, n_compares, n_swaps, cur_time);
-  printf("Key:  %s->%s Compare  ", COLOR_YELLOW, COLOR_CLEAR);
+  printf("Algorithm: \"%s\"  ", algorithm);
+
+  if(run_number > 0) {
+    printf("Run: %d  Compares: %d  Swaps: %d  Time: %3.2fs", run_number, n_compares, n_swaps, cur_time);
+  }
+
+  printf("\n\n");
+  printf("%s->%s Compare  ", COLOR_YELLOW, COLOR_CLEAR);
   printf("%s->%s Swap  ", COLOR_GREEN, COLOR_CLEAR);
-  printf("%s->%s No Swap  ", COLOR_RED, COLOR_CLEAR);
+  printf("%s->%s No Swap\n", COLOR_RED, COLOR_CLEAR);
   printf("%s|--|%s Pivot/Iteration", COLOR_MAGENTA, COLOR_CLEAR);
   printf("\n\n");
 
@@ -404,20 +411,32 @@ void shell_sort(int *values) {
  * values: Array of integers to be randomized
  */ 
 void generate_data(int *values) {
-  int i;
-  int swap_from, swap_to, tmp;
+  int i, max_iterations;
+  int swap_from, swap_to;
+  float pct = 0.0;
+  char tmp_algorithm[40];
 
+  for(i=0; i<ARRAY_SIZE; i++) values[i] = (i * 2) - 1;
+
+  n_swaps = -1;
+  gettimeofday(&tim, NULL);
+  start_time = tim.tv_sec + (tim.tv_usec/1000000.0);
+  run_number = 0;
   algorithm = "---";
 
-  for(i=0; i<ARRAY_SIZE; i++) values[i] = i;
+  print_data(values, -1, -1, -1, COLOR_CLEAR);
+  sleep(2);
 
-  for(i=0; i<ARRAY_SIZE; i++) {
+  max_iterations = ARRAY_SIZE * 2;
+  for(i=0; i<max_iterations; i++) {
+    pct = ((float) (i+1) / max_iterations) * 100.0;
+    sprintf(tmp_algorithm, "-- Randomize (%0.0f%%) --", pct);
+    algorithm = tmp_algorithm;
+
     swap_from = rand() % ARRAY_SIZE;
     swap_to = rand() % ARRAY_SIZE;
 
-    tmp = values[swap_to];
-    values[swap_to] = values[swap_from];
-    values[swap_from] = tmp;
+    color_swap(values, swap_from, swap_to, -1);
   }
 
   print_data(values, -1, -1, -1, COLOR_CLEAR);
@@ -437,6 +456,7 @@ int main() {
   char ctrl_str[80];
 
   typedef void (*fn_ptr)( int* );
+  /*
   fn_ptr fn_ptr_array[] = {
     &heap_sort,
     &quick_sort,
@@ -444,6 +464,24 @@ int main() {
     &insertion_sort,
     &shell_sort,
     &bubble_sort,
+  };
+  */
+  fn_ptr fn_ptr_array[] = {
+    &heap_sort,
+    &heap_sort,
+    &heap_sort,
+    &quick_sort,
+    &quick_sort,
+    &quick_sort,
+    &insertion_sort,
+    &insertion_sort,
+    &insertion_sort,
+    &shell_sort,
+    &shell_sort,
+    &shell_sort,
+    &selection_sort,
+    &selection_sort,
+    &selection_sort,
   };
 
   gettimeofday(&tim, NULL);
@@ -464,12 +502,13 @@ int main() {
   double end_time;
 
   for(i = 0 ;  ; i = (i % array_size) ) {
-    reset_stats();
     generate_data(values);
+    reset_stats();
 
     gettimeofday(&tim, NULL);
     start_time = tim.tv_sec + (tim.tv_usec/1000000.0);
 
+    run_number = i+1;
     (*fn_ptr_array[i])(values);
 
     gettimeofday(&tim, NULL);
@@ -515,9 +554,9 @@ int main() {
       system("clear");
       printf("Results:\n\n");
 
-      sprintf(ctrl_str, "Run  %%%ds    Compares  Swaps  Time\n", -max_l);
-      printf(ctrl_str, "Algorithm");
-      sprintf(ctrl_str, "%%s%%d    %%%ds    %%-4d      %%-3d    %%-3.2fs%s\n", -max_l, COLOR_CLEAR);
+      sprintf(ctrl_str, "Run  %%%ds     Compares  Swaps  Time\n", -max_l);
+      printf(ctrl_str, "  Algorithm");
+      sprintf(ctrl_str, "%%s%%3d    %%%ds    %%-4d      %%-3d    %%-3.2fs%s\n", -(max_l+1), COLOR_CLEAR);
 
       for(j = 0; j < array_size; j++) {
         char *color = COLOR_CLEAR;
