@@ -467,7 +467,6 @@ int main() {
     &selection_sort,
     &insertion_sort,
     &shell_sort,
-    &quick_sort,
     &bubble_sort,
   };
 
