@@ -384,12 +384,15 @@ void selection_sort(int *values) {
 void shell_sort(int *values) {
   int gap, i, j, k;
   int n = ARRAY_SIZE;
-  int gaps[] = {48, 21, 7, 5, 1};
+  int gaps[] = {23, 12, 5, 3, 1};
+  char tmp_algorithm[40];
 
   algorithm = "Shell Sort";
 
   for( k = 0; k < sizeof(gaps) / sizeof(int); k++ ) {
     gap = gaps[k];
+    sprintf(tmp_algorithm, "Shell Sort (Gap: %d)", gap); 
+    algorithm = tmp_algorithm;
     for( i = 0 ; i < n ; i++ ) {
       for( j = i; j >= gap; j -= gap ) {
         color_compare(values, j, j-gap, i);
@@ -402,6 +405,7 @@ void shell_sort(int *values) {
       }
     }
   }
+  algorithm = "Shell Sort";
 }
 
 /* generate_data()
@@ -456,33 +460,36 @@ int main() {
   char ctrl_str[80];
 
   typedef void (*fn_ptr)( int* );
+
+  fn_ptr fn_ptr_array[] = {
+    &heap_sort,
+    &quick_sort,
+    &selection_sort,
+    &insertion_sort,
+    &shell_sort,
+    &quick_sort,
+    &bubble_sort,
+  };
+
   /*
   fn_ptr fn_ptr_array[] = {
     &heap_sort,
+    &heap_sort,
+    &heap_sort,
     &quick_sort,
-    &selection_sort,
+    &quick_sort,
+    &quick_sort,
+    &insertion_sort,
+    &insertion_sort,
     &insertion_sort,
     &shell_sort,
-    &bubble_sort,
+    &shell_sort,
+    &shell_sort,
+    &selection_sort,
+    &selection_sort,
+    &selection_sort,
   };
   */
-  fn_ptr fn_ptr_array[] = {
-    &heap_sort,
-    &heap_sort,
-    &heap_sort,
-    &quick_sort,
-    &quick_sort,
-    &quick_sort,
-    &insertion_sort,
-    &insertion_sort,
-    &insertion_sort,
-    &shell_sort,
-    &shell_sort,
-    &shell_sort,
-    &selection_sort,
-    &selection_sort,
-    &selection_sort,
-  };
 
   gettimeofday(&tim, NULL);
   srand(tim.tv_usec / 1.0);
