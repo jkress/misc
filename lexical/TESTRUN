@@ -1,0 +1,23 @@
+Example Test Run of Lexical Analyzer
+
+Input Program:
+
+const n = 13;
+var i,h;
+procedure sub;
+  const k = 7;
+  var j,h;
+  begin
+    j:=n;
+    i:=1;
+    h:=k;
+  end;
+begin
+  i:=3;
+  h:=0;
+  call sub;
+end.
+
+Token Output:
+
+28 2 20 0 9 3 13 18 29 2 10 0 17 2 8 0 18 30 2 13 0 18 28 2 14 0 9 3 7 18 29 2 12 0 17 2 8 0 18 21 2 12 0 20 2 20 0 18 2 10 0 20 3 1 18 2 8 0 20 2 14 0 18 22 18 21 2 10 0 20 3 3 18 2 8 0 20 3 0 18 27 2 13 0 18 22 19 
